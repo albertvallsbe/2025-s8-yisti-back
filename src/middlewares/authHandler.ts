@@ -2,7 +2,7 @@ import Boom from "@hapi/boom";
 import type { Request, Response, NextFunction } from "express";
 
 import { config } from "./../config/config.js";
-import type { AuthUser, UserRole } from "../types/types.js";
+import type { AuthUser, UserRole } from "../types/userTypes.js";
 
 export const checkApiKey = (
 	req: Request,

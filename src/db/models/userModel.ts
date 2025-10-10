@@ -1,7 +1,7 @@
 import { Model, DataTypes, Sequelize } from "sequelize";
 import type { Optional, ModelAttributes } from "sequelize";
 
-import type { UserRole, User as UserType } from "../../types/types.js";
+import type { UserRole, User as UserType } from "../../types/userTypes.js";
 export const USER_TABLE = "users";
 
 export type UserCreationAttributes = Optional<
