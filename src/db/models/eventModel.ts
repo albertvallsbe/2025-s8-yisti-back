@@ -63,7 +63,7 @@ export class Event
 			tableName: EVENT_TABLE,
 			modelName: "Event",
 			timestamps: true,
-			underscored: true,
+			underscored: true, // crea created_at / updated_at
 		};
 	}
 }
