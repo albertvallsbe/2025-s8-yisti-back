@@ -9,7 +9,7 @@ import type {
 	// AuthUser,
 	User as UserType,
 	// userJwtPayload,
-} from "../types/types.js";
+} from "../types/userTypes.js";
 import { AuthService } from "../services/authService.js";
 
 export const authRouter = Router();

@@ -7,7 +7,7 @@ import {
 import Boom from "@hapi/boom";
 import bcrypt from "bcrypt";
 
-import type { User as UserType } from "../types/types.js";
+import type { User as UserType } from "../types/userTypes.js";
 import { User as UserModel } from "../db/models/userModel.js";
 
 export class UserService {

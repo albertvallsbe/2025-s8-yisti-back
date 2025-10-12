@@ -15,7 +15,7 @@ import type {
 	User as UserType,
 	userJwtPayload,
 	AuthUser,
-} from "../types/types.js";
+} from "../types/userTypes.js";
 
 import { UserService } from "../services/userService.js";
 import { sendMail as sendMailReusable } from "../libs/mailer.js";

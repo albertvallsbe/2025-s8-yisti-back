@@ -2,7 +2,7 @@ import type { QueryInterface } from "sequelize";
 import type * as SequelizeNS from "sequelize";
 import bcrypt from "bcrypt";
 import { faker } from "@faker-js/faker";
-import type { UserRole } from "../../types/types.js";
+import type { UserRole } from "../../types/userTypes.js";
 
 const USER_TABLE = "users";
 
