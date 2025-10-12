@@ -1,109 +1,134 @@
 import type { Request, Response, NextFunction } from "express";
 import { Router } from "express";
+import passport from "passport";
 
-import { UserService } from "../services/userService.js";
+import { LocationService } from "../services/locationService.js";
 import { validatorHandler } from "../middlewares/validatorHandler.js";
 import {
-	getUserSchema,
-	createUserSchema,
-	updateUserSchema,
-} from "../schemas/userSchema.js";
+	getLocationSchema,
+	createLocationSchema,
+	updateLocationSchema,
+} from "../schemas/locationSchema.js";
+import type { AuthUser } from "../types/userTypes.js";
 
 export const locationsRouter = Router();
-const service = new UserService();
+const service = new LocationService();
 
+/**
+ * 🔐 Totes les rutes de /locations requereixen JWT
+ * (seguint el patró que heu indicat: “si totes les pàgines has d’estar logejat”)
+ */
+locationsRouter.use(passport.authenticate("jwt", { session: false }));
+
+/**
+ * GET /locations
+ * Retorna totes les localitzacions (sense filtratge per usuari de moment).
+ */
 locationsRouter.get(
 	"/",
-	async (req: Request, res: Response, next: NextFunction) => {
+	async (_req: Request, res: Response, next: NextFunction) => {
 		try {
-			const users = await service.find();
-
-			return res.json(users);
+			const items = await service.find();
+			return res.json(items);
 		} catch (error) {
 			return next(error);
 		}
 	},
 );
 
+/**
+ * GET /locations/:id
+ */
 locationsRouter.get(
 	"/:id",
-	validatorHandler(getUserSchema, "params"),
+	validatorHandler(getLocationSchema, "params"),
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const id = req.params.id;
+			const id = Number(req.params.id);
 			if (!id) {
 				return res.status(400).json({ message: "Missing id param" });
 			}
-
-			const user = await service.findById(id);
-
-			return res.status(200).json(user);
+			const item = await service.findById(id);
+			return res.status(200).json(item);
 		} catch (error) {
 			return next(error);
 		}
 	},
 );
 
+/**
+ * POST /locations
+ * Crea una localització. Si l’usuari està logejat, fem servir el seu `id` del token.
+ * (De moment no filtrem per usuari al GET; això es pot afegir més endavant.)
+ */
 locationsRouter.post(
 	"/",
-	validatorHandler(createUserSchema, "body"),
+	validatorHandler(createLocationSchema, "body"),
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const body = req.body;
-			const newUser = await service.create(body);
+			const tokenUser = req.user as AuthUser | undefined;
 
-			return res.status(201).json(newUser);
+			// Prioritza l'id del token si hi és; sinó, conserva el que vingui al body (compatibilitat)
+			const userId = tokenUser?.id ?? req.body.userId;
+
+			const payload = {
+				name: req.body.name,
+				center: req.body.center as [number, number],
+				userId,
+			};
+
+			const created = await service.create(payload);
+			return res.status(201).json(created);
 		} catch (error) {
 			return next(error);
 		}
 	},
 );
 
+/**
+ * PATCH /locations/:id
+ */
 locationsRouter.patch(
 	"/:id",
-	validatorHandler(getUserSchema, "params"),
-	validatorHandler(updateUserSchema, "body"),
+	validatorHandler(getLocationSchema, "params"),
+	validatorHandler(updateLocationSchema, "body"),
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const id = req.params.id;
+			const id = Number(req.params.id);
 			if (!id) {
 				return res.status(400).json({ message: "Missing id param" });
 			}
 
-			const body = req.body;
-			const user = await service.updatePatch(id, body);
+			const changes = req.body as Partial<{
+				name: string;
+				center: [number, number];
+				userId: number;
+			}>;
 
-			return res.json(user);
+			const updated = await service.updatePatch(id, changes);
+			return res.json(updated);
 		} catch (error) {
 			return next(error);
 		}
 	},
 );
 
+/**
+ * DELETE /locations/:id
+ */
 locationsRouter.delete(
 	"/:id",
-	validatorHandler(getUserSchema, "params"),
+	validatorHandler(getLocationSchema, "params"),
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const id = req.params.id;
+			const id = Number(req.params.id);
 			if (!id) {
 				return res.status(400).json({ message: "Missing id param" });
 			}
-
-			const user = await service.deleteById(id);
-
-			return res.status(204).json(user);
+			await service.deleteById(id);
+			return res.status(204).send();
 		} catch (error) {
 			return next(error);
 		}
 	},
 );
-
-// usersRouter.get("/", (req: Request, res: Response) => {
-// 	const { limit, offset } = req.query;
-
-// 	if (limit && offset) {
-// 		res.json({ limit, offset });
-// 	}
-// 	res.send("No query params");
-// });
