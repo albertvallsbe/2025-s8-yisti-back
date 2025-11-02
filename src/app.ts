@@ -20,7 +20,7 @@ const whitelist: string[] = [
 	"http://localhost:4173",
 	"http://127.0.0.1:4173",
 	// Url publica del front
-	"https://yisti.netlify.app",
+	"https://yisti-s8.netlify.app",
 ];
 
 const corsOptions: CorsOptions = {
